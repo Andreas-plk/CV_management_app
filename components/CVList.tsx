@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { FaFileUpload } from "react-icons/fa";
 import { CATEGORY_OPTIONS } from "@/lib/constants";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {cv} from '@/lib/types'
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
+import {User} from "@prisma/client";
+import BioCard from "@/components/bioCard";
 
 
 
-export default function CVList({ cvs }: { cvs: cv[] }) {
+export default function CVList({ cvs,user }: { cvs: cv[],user:User|null }) {
     const [selected, setSelected] = useState<string[]>([]);
 
     const toggleCategory = (cat: string) => {
@@ -57,39 +58,19 @@ export default function CVList({ cvs }: { cvs: cv[] }) {
             </div>
             <div className="flex justify-between">
                 <h1 className="text-3xl font-semibold ">Βιογραφικά</h1>
-                <Button asChild><Link href="/">Upload<FaFileUpload/></Link></Button>
+                {user ? (<Button asChild><Link href="/">Upload<FaFileUpload/></Link></Button>):(<></>)}
             </div>
 
             {filtered.length === 0 ? (
                 <p className="text-gray-500 italic">Δεν υπάρχουν βιογραφικά.</p>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {filtered.map((cv) => (
-                        <Card key={cv.id} className="ring-primary/50 ring">
-                            <CardHeader>
-                                <CardTitle>{cv.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p>
-                                    <strong>Κατηγορίες:</strong>{" "}
-                                    {cv.categories?.join(" • ") || "—"}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                    {new Date(cv.createdAt).toLocaleDateString("el-GR")}
-                                </p>
-                                <Button asChild variant="default" className="mt-2">
-                                    <a href={`/api/cv/${cv.id}`} target="_blank">
-                                        Προβολή Βιογραφικού
-                                    </a>
-                                </Button>
-                            </CardContent>
-                        </Card>
+                    {filtered.map((cv,idx) => (
+                        <BioCard key={idx} cv={cv}/>
                     ))}
 
                 </div>
             )}
-
-
         </div>
     );
 }

@@ -4,17 +4,23 @@ import prisma from "@/lib/prisma";
 import {Category} from "@prisma/client"
 import {redirect} from "next/navigation";
 import {createSession, deleteSession} from "@/lib/session";
+import {revalidatePath} from "next/cache";
 
 
 
-export async function getCVS() {
+
+export async function getCVS(pending:boolean) {
     try {
         return await prisma.cV.findMany({
+            where:{
+                accepted:!pending,
+            },
             select: {
                 id: true,
                 name: true,
                 categories: true,
                 createdAt: true,
+                accepted: true
             },
         });
     }catch (error) {
@@ -22,7 +28,6 @@ export async function getCVS() {
         return []
     }
 }
-
 
 export async function createCVS(formData: FormData) {
     const name = formData.get("name") as string;
@@ -56,6 +61,7 @@ export async function createCVS(formData: FormData) {
         name,
         file: buffer,
         categories,
+        accepted: false,
     };
 
     if (userId) {
@@ -63,6 +69,25 @@ export async function createCVS(formData: FormData) {
     }
 
     return await prisma.cV.create({ data });
+}
+
+export async function acceptCVS(id: string,accepted: boolean) {
+    if (accepted) {
+        await prisma.cV.update({
+            where:{
+                id
+            },
+            data: {
+                accepted: true,
+            }
+        })
+        revalidatePath("/requests")
+        return "Επιτυχές"
+    }
+    await prisma.cV.delete({ where:{id} });
+    revalidatePath("/requests")
+    return "Απόριψη"
+
 }
 
 export async function createUser(formData: FormData) {
@@ -75,14 +100,19 @@ export async function createUser(formData: FormData) {
         throw new Error("Παρακαλώ εισάγετε σωστά τους κωδικούς")
     }
 
-    bcrypt.hash(password,12,async function(err:Error, hash:string){
-        if (err) throw err;
-        const data:any={
+    const hash = await bcrypt.hash(password, 12);
+
+    const user = await prisma.user.create({
+        data: {
             email,
             password: hash,
-        }
-        return await prisma.user.create({data});
-    } );
+            role: "STUDENT",
+        },
+    });
+
+    await createSession(user.id, user.email, user.role);
+
+    redirect("/dashboard");
 }
 
 export async function getUser(formData: FormData) {
@@ -103,7 +133,7 @@ export async function getUser(formData: FormData) {
             throw new Error("Λάθος κωδικός");
         }
 
-        await createSession(user.id,user.email)
+        await createSession(user.id,user.email,user.role)
         redirect("/dashboard")
 
 }

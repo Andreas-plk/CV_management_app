@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import {useState} from "react";
 import {createUser} from "@/app/actions";
 import {toast} from "sonner";
+import {isRedirectError} from "next/dist/client/components/redirect-error";
 
 export function SignUpForm({
                               className,
@@ -27,10 +28,10 @@ export function SignUpForm({
         try {
             setLoading(true);
             await createUser(fd);
-            toast.success("Ooo yes");
             form.reset();
         } catch (err: any) {
-            toast.warning("Σφάλμα: " + (err.message || "Αποτυχία upload"));
+            if (isRedirectError(err)) return;
+            toast.warning("Σφάλμα: " + (err.message));
         } finally {
             setLoading(false);
         }

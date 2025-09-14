@@ -11,3 +11,6 @@ export const CATEGORY_OPTIONS = [
     { value: "SALES", label: "Sales" },
 ];
 
+export const CATEGORY_MAP = Object.fromEntries(
+    CATEGORY_OPTIONS.map(opt => [opt.value, opt.label])
+);

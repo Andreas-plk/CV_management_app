@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label"
 import {getUser} from "@/app/actions";
 import {toast} from "sonner";
 import {useState} from "react";
+import {redirect} from "next/navigation";
+import {isRedirectError} from "next/dist/client/components/redirect-error";
 
 
 
@@ -34,8 +36,10 @@ export function LoginForm({
             setLoading(true);
             await getUser(fd);
             form.reset();
+
         } catch (err: any) {
-            toast.warning("Σφάλμα: " + (err.message || "Αποτυχία upload"));
+            if (isRedirectError(err)) return;
+            toast.warning("Σφάλμα: " + (err.message));
         } finally {
             setLoading(false);
         }

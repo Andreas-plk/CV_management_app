@@ -6,4 +6,5 @@ export type cv={
     name: string
     createdAt: Date
     categories: Category[]
+    accepted: boolean
 }
