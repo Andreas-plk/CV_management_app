@@ -1,12 +1,13 @@
 // app/api/cv/[id]/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { ObjectId } from "bson";
+
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
+    const {id} = await params;
     try {
         const cv = await prisma.cV.findUnique({
-            where: { id: params.id },
+            where: {id },
         });
 
         if (!cv || !cv.file) {

@@ -46,7 +46,7 @@ model CV {
   file       Bytes
   createdAt  DateTime   @default(now())
   categories Category[]
-  user       User?      @relation(fields: [userId], references: [id])
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String?    @db.ObjectId
   accepted   Boolean
 }

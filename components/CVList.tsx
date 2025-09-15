@@ -58,7 +58,7 @@ export default function CVList({ cvs,user }: { cvs: cv[],user:User|null }) {
             </div>
             <div className="flex justify-between">
                 <h1 className="text-3xl font-semibold ">Βιογραφικά</h1>
-                {user ? (<Button asChild><Link href="/">Upload<FaFileUpload/></Link></Button>):(<></>)}
+                {user ? (<Button asChild><Link href="/upload">Upload<FaFileUpload/></Link></Button>):(<></>)}
             </div>
 
             {filtered.length === 0 ? (

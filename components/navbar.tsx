@@ -17,11 +17,18 @@ const Navbar = async () => {
                <Link className="text-xl relative inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white
                 after:rotate-2 after:transition-all after:duration-300 hover:after:w-full" href="/dashboard">Πίνακας</Link>
                 {user && user?.role==="ADMIN" ?
-                    (<Link className="text-xl relative inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white
-                after:rotate-2 after:transition-all after:duration-300 hover:after:w-full" href="/requests">Αιτήματα</Link>):
-                    (<p></p>)}
+                    (<>
+                        <Link className="text-xl relative inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white
+                after:rotate-2 after:transition-all after:duration-300 hover:after:w-full" href="/requests">Αιτήματα</Link>
 
-                <p></p>
+                        <Link className="text-xl relative inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white
+                after:rotate-2 after:transition-all after:duration-300 hover:after:w-full" href="/students">Μαθητές</Link>
+
+                    </>):
+                 user && user.role==="STUDENT" ?  (<><Link className="text-xl relative inline-block after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-white
+                after:rotate-2 after:transition-all after:duration-300 hover:after:w-full" href="/edit">Επεξεργασία βιογραφικού</Link> <p></p></>) :(<p></p>)}
+
+
 
                 {/* Δεξιά */}
                 <div className="flex items-center space-x-4">

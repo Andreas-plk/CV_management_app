@@ -9,11 +9,35 @@ import {revalidatePath} from "next/cache";
 
 
 
+
 export async function getCVS(pending:boolean) {
     try {
         return await prisma.cV.findMany({
             where:{
                 accepted:!pending,
+            },
+            select: {
+                id: true,
+                name: true,
+                categories: true,
+                createdAt: true,
+                accepted: true
+            },
+            orderBy:{
+                createdAt:"desc"
+            }
+        });
+    }catch (error) {
+        console.error(error);
+        return []
+    }
+}
+
+export async function getCVSbyId(id:string) {
+    try {
+        return await prisma.cV.findMany({
+            where:{
+                userId:id
             },
             select: {
                 id: true,
@@ -71,6 +95,56 @@ export async function createCVS(formData: FormData) {
     return await prisma.cV.create({ data });
 }
 
+export async function updateCVS(formData: FormData) {
+    const id = formData.get("id") as string;
+    const name = formData.get("name") as string;
+    const userId = formData.get("userId") as string | null;
+    const file = formData.get("file") as File;
+
+    if (!name) {
+        throw new Error("Λείπουν πεδία (name)");
+    }
+    if (file && file.size>0) {
+        if(file.type !== "application/pdf"){
+        throw new Error("Μόνο PDF αρχεία επιτρέπονται");
+        }
+    }
+
+    const categoryStrings = formData.getAll("categories") as string[];
+    const categories: Category[] = categoryStrings
+        .map((c) => {
+            if (Object.values(Category).includes(c as Category)) {
+                return c as Category;
+            }
+            throw new Error(`Μη έγκυρη κατηγορία: ${c}`);
+        });
+
+    if (categories.length > 5) {
+        throw new Error("Ένα CV μπορεί να έχει μέχρι 5 κατηγορίες");
+    }
+
+
+
+    const data: any = {
+        name,
+        categories,
+    };
+    if(file && file.size>0) {
+        const arrayBuffer = await file.arrayBuffer();
+        data.file= Buffer.from(arrayBuffer);
+    }
+
+    if (userId) {
+        data.user = { connect: { id: userId } };
+
+    }
+    return await prisma.cV.update({where:{
+            id
+        } ,data });
+
+}
+
+
 export async function acceptCVS(id: string,accepted: boolean) {
     if (accepted) {
         await prisma.cV.update({
@@ -86,7 +160,7 @@ export async function acceptCVS(id: string,accepted: boolean) {
     }
     await prisma.cV.delete({ where:{id} });
     revalidatePath("/requests")
-    return "Απόριψη"
+    return "Διαγραφή επιτυχής"
 
 }
 
@@ -138,6 +212,23 @@ export async function getUser(formData: FormData) {
 
 }
 
+export async function getStudents() {
+    return prisma.user.findMany({
+        where:{role:"STUDENT"},
+        select: {
+            id: true,
+            email: true,
+            name: true,
+        },
+    })
+
+}
+export async function deleteUser(id: string) {
+    await prisma.user.delete({
+        where: { id },
+    });
+    revalidatePath("/students");
+}
 export async function logout() {
     await deleteSession()
     redirect('/dashboard')

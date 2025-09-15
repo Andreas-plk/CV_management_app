@@ -18,7 +18,7 @@ const Page = async () => {
                 {cvs.length === 0 ? (<p className="text-gray-500 italic">Δεν υπάρχουν βιογραφικά για έγκριση.</p>):
                 (<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {cvs.map((cv,idx) => (
-                    <BioCard key={idx} cv={cv}/>
+                    <BioCard key={idx} cv={cv} role={user.role} />
                 ))}
                 </div>)}
 
