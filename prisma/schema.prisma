@@ -50,3 +50,8 @@ model CV {
   userId     String?    @db.ObjectId
   accepted   Boolean
 }
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../ERD.png"
+}
